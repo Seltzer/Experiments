@@ -3,6 +3,7 @@ module Trees
   Tree
 ) where
 
+import Test
 import qualified Data.List as DList
 import qualified Data.Tree as DTree
 import qualified Data.Sequence as DSeq
