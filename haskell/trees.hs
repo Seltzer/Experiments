@@ -50,21 +50,29 @@ getTreeValuesPreOrder (Node a l r) =
 
 treeBalance :: (Ord a) => Tree a -> Tree a
 treeBalance EmptyTree = EmptyTree
-treeBalance x = x
-  where middle x = let x' = DSeq.fromList x in DSeq.index x' $ (div (DSeq.length x') 2)
+treeBalance x = (buildTree . reverse. reorder . getTreeValuesPreOrder) x
+  where 
+    reorder [] = []
+    reorder x = let (leading, middle, trailing) = bisect x in [middle] ++ (reorder leading) ++ (reorder trailing)
+  
+bisect :: [a] -> ([a], a, [a])
+bisect x = 
+  let middle = div (length x) 2 
+  in (take middle x, x !! middle, drop (middle + 1) x)
+
+
 
 main = do
-  let coolTree = buildTree [1, 7, 4, 9, 10, 13, 22, 2] 
-  
---  putStrLn $ show $ middle [1, 2, 3]
---  putStrLn $ show $ middle [1, 2, 3, 4]
+  let coolTree = buildTree [1, 7, 4, 9, 15, 10, 13, 22, 2] 
 
-  -- Ugly
   putStrLn ("Depth: " ++ (show $ treeDepth coolTree))
   putStrLn (DList.intercalate " " $ map show $ getTreeValuesPreOrder coolTree)
 
   putStrLn (show coolTree)
   putStrLn $ prettyPrint coolTree
+
+  putStrLn "Balancing"
+  (putStrLn . prettyPrint . treeBalance) coolTree
 
   putStrLn $ show $ treeElement 999 coolTree
   putStrLn $ show $ treeElement 7 coolTree
