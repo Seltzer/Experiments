@@ -38,13 +38,15 @@ printMaybePole3 pole =
 main = do
   let balanced = return (0,0) >>= landLeft 1 >>= landRight 4
   let imbalanced1 = return (0,0) >>= landLeft 1 >>= landRight 4 >>= landLeft (-1) >>= landRight (-2) 
-
   let imbalanced2 = return (0, 1) >>= banana
+  let imbalanced3 = return (0,1) >> Nothing
+
 
   putStrLn $ printMaybePole1 balanced
   putStrLn $ printMaybePole2 imbalanced1
   putStrLn $ printMaybePole2 imbalanced2
   putStrLn $ printMaybePole3 balanced
+  putStrLn $ printMaybePole3 imbalanced3
 
 
 
