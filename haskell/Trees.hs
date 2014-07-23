@@ -1,9 +1,22 @@
 module Trees
 (
   Tree(..),
+  Crumb(..),
+  Breadcrumbs,
+  TreeZipper,
+  Direction(..),
+  Directions,
+  buildTree,
+  treeBalance,
   treeInsert,
+  treeRemove,
+  treeFind,
   singleton,
-  nodeCount
+  nodeCount,
+  modify,
+  navigate,
+  goLeft,
+  goRight
 
 ) where
 
@@ -30,7 +43,7 @@ instance Monad Tree where
 
 
 -- Crumbs keep track of the previous node's values plus the sub-tree not taken.
-data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving Show
+data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving (Show, Eq)
 type Breadcrumbs a = [Crumb a]
 type TreeZipper a = (Tree a, Breadcrumbs a)
 
@@ -38,6 +51,7 @@ type TreeZipper a = (Tree a, Breadcrumbs a)
 singleton :: a -> Tree a
 singleton x = Node x EmptyTree EmptyTree
 
+-- Returns passed in tree
 treeInsert :: (Ord a) => a -> Tree a -> Tree a
 treeInsert x EmptyTree = singleton x
 treeInsert x (Node a l r)
@@ -46,10 +60,19 @@ treeInsert x (Node a l r)
   | x > a =  Node a l (treeInsert x r)
 
 treeRemove :: (Ord a) => a -> Tree a -> Tree a
-treeRemove x EmptyTree = EmptyTree
-treeRemove x tree = tree
-  --treeRemove x (Node a l r)
-  -- | x == a = Node 
+treeRemove _ EmptyTree = EmptyTree
+treeRemove x (Node a l r)
+  | x == a = EmptyTree
+  | x < a = Node a (treeRemove x l) r
+  | x > a = Node a l (treeRemove x r)
+
+treeFind :: (Ord a) => a -> TreeZipper a -> Maybe(TreeZipper a)
+treeFind _ (EmptyTree, _) = Nothing
+treeFind x z@(Node a l r, bs) 
+  | x == a = Just z
+  | x < a = treeFind x $ goLeft z
+  | x > a = treeFind x $ goRight z
+
 
 treeElement :: (Ord a) => a -> Tree a -> Bool
 treeElement _ EmptyTree = False
@@ -146,3 +169,4 @@ main = do
 
 
 
+ 
