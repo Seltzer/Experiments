@@ -1,0 +1,13 @@
+import Test.HUnit
+import Trees
+
+
+treeInsertTest = TestCase $ assertEqual
+  "horatio"
+  Nothing
+  Nothing
+
+
+
+main = runTestTT treeInsertTest
+

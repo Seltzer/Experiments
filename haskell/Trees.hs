@@ -1,6 +1,10 @@
 module Trees
 (
-  Tree
+  Tree(..),
+  treeInsert,
+  singleton,
+  nodeCount
+
 ) where
 
 import Core
@@ -10,6 +14,7 @@ import qualified Data.Tree as DTree
 import qualified Data.Sequence as DSeq
 
 
+-- Tree type
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
 
 instance Functor Tree where
@@ -22,6 +27,12 @@ instance Monad Tree where
   EmptyTree >>= f = EmptyTree
   (Node a _ _) >>= f = f a  
   fail _ = EmptyTree
+
+
+-- Crumbs keep track of the previous node's values plus the sub-tree not taken.
+data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving Show
+type Breadcrumbs a = [Crumb a]
+type TreeZipper a = (Tree a, Breadcrumbs a)
 
 
 singleton :: a -> Tree a
@@ -80,6 +91,12 @@ nodeCount EmptyTree    = 0
 nodeCount (Node a l r) = 1 + nodeCount l + nodeCount r
 
 
+modify :: (a -> a) -> TreeZipper a -> TreeZipper a
+modify f (Node x l r, bs) = (Node (f x) l r, bs) 
+modify f (EmptyTree, bs) = (EmptyTree, bs)
+
+
+-- Tree navigation (old)
 data Direction = L | R deriving (Show)
 type Directions = [Direction]
 
@@ -90,24 +107,21 @@ navigate (Node _ l _) (L:remaining) = navigate l remaining
 navigate (Node _ _ r) (R:remaining) = navigate r remaining
 
 
-type Breadcrumbs a = [Crumb a]
-data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving Show
 
-type TreeZipper a = (Tree a, Breadcrumbs a)
-
-goLeft :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goLeft :: TreeZipper a -> TreeZipper a
 goLeft (Node a l r, br) = (l, LeftCrumb a r:br)
 
-goRight :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goRight :: TreeZipper a -> TreeZipper a
 goRight (Node a l r, br) = (r, RightCrumb a l:br)
 
-goUp :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goUp :: TreeZipper a -> TreeZipper a
 goUp (tree, LeftCrumb a r:br) = (Node a tree r, br)
 goUp (tree, RightCrumb a l:br) = (Node a l tree, br)
 
 
-
-
+-- Private
+prt :: (Show a) => Tree a -> IO()
+prt = putStrLn . prettyPrint
 
 
 main = do
@@ -120,10 +134,7 @@ main = do
   putStrLn $ prettyPrint coolTree
 
   putStrLn "Balancing"
-  (putStrLn . prettyPrint . treeBalance) coolTree
-
-  putStrLn $ show $ treeElement 999 coolTree
-  putStrLn $ show $ treeElement 7 coolTree
+  prt $ treeBalance coolTree
 
   putStrLn $ (maybe "Not found" prettyPrint (navigate coolTree [L, L, L]))
   putStrLn $ (maybe "Not found" prettyPrint (navigate coolTree [R, L, L]))
