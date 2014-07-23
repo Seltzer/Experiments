@@ -10,7 +10,7 @@ module Trees
   treeBalance,
   treeInsert,
   treeRemove,
-  treeFind,
+--  treeFind,
   singleton,
   nodeCount,
   modify,
@@ -67,12 +67,13 @@ treeRemove x (Node a l r)
   | x < a = Node a (treeRemove x l) r
   | x > a = Node a l (treeRemove x r)
 
-treeFind :: (Ord a) => a -> TreeZipper a -> Maybe(TreeZipper a)
-treeFind _ (EmptyTree, _) = Nothing
-treeFind x z@(Node a l r, bs) 
-  | x == a = Just z
-  | x < a = (goLeft z) >>= treeFind x
-  | x > a = (goRight z) >>= treeFind x
+--treeFind :: (Ord a) => a -> TreeZipper a -> Maybe(TreeZipper a)
+--treeFind _ (EmptyTree, _) = Nothing
+--treeFind x z@(Node a l r, bs) 
+--  | x == a = Just z
+--  | x < a = treeFind x $ goLeft z
+--  | x > a = treeFind x $ goRight z
+
 
 treeElement :: (Ord a) => a -> Tree a -> Bool
 treeElement _ EmptyTree = False
@@ -133,13 +134,10 @@ navigate (Node _ _ r) (R:remaining) = navigate r remaining
 
 goLeft :: TreeZipper a -> Maybe(TreeZipper a)
 goLeft (EmptyTree, _) = Nothing
-goLeft (Node _ EmptyTree _, _) = Nothing
 goLeft (Node a l r, br) = Just (l, LeftCrumb a r:br)
-
 
 goRight :: TreeZipper a -> Maybe(TreeZipper a)
 goRight (EmptyTree, _) = Nothing
-goRight (Node _ _ EmptyTree, _) = Nothing
 goRight (Node a l r, br) = Just (r, RightCrumb a l:br)
 
 goUp :: TreeZipper a -> Maybe(TreeZipper a)
@@ -152,9 +150,6 @@ goUp (tree, RightCrumb a l:br) = Just (Node a l tree, br)
 prt :: (Show a) => Tree a -> IO()
 prt = putStrLn . prettyPrint
 
-prt2 :: Maybe String -> IO()
-prt2 Nothing = putStrLn "Went off the edge of the tree/universe"
-prt2 (Just x) = putStrLn x
 
 main = do
   let coolTree = buildTree [1, 7, 4, 9, 15, 10, 13, 22, 2] 
@@ -171,10 +166,13 @@ main = do
   putStrLn $ (maybe "Not found" prettyPrint (navigate coolTree [L, L, L]))
   putStrLn $ (maybe "Not found" prettyPrint (navigate coolTree [R, L, L]))
 
-  prt2 $ prettyPrint <$> fst <$> (Just (treeBalance coolTree, []) >>= goRight >>= goLeft)
+  let blah = (prettyPrint <$> fst <$>
+    (return (treeBalance coolTree, []) >>= goRight >>= goLeft))
 
-  prt2 $ prettyPrint <$> fst <$> (Just (treeBalance coolTree, []) >>= goRight >>= goLeft >>= goLeft >>= goLeft)
 
+
+  putStrLn "hello"
+      
 
 
 

@@ -34,7 +34,7 @@ treeFindTest = TestCase $
 
     assertEqual "Expect Nothing" Nothing (treeFind 100 (tree, []))
     assertEqual "Expect root" (Just (tree, [])) (treeFind 10 (tree, []))
-    assertEqual "Expect leaf" (Just (goRight (tree, []))) (treeFind 11 (tree, []))
+    assertEqual "Expect leaf" (goRight (tree, [])) (treeFind 11 (tree, []))
   
 modifyTest = TestCase $
   do
