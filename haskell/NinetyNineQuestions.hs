@@ -50,8 +50,33 @@ length' (x:xs) = 1 + length' xs
 length'' = sum . map (const 1)
 length''' = foldl (\n _ -> n + 1) 0
 length'''' = fst . last . zip [1..]
-			
-		  
+
+
+-- 5.) Reverse a list
+reverse' :: [x] -> [x]
+reverse' [] = []
+reverse' (x:xs) = reverse' xs ++ [x]
+
+reverse'' = foldl (flip (:)) []
+
+		
+-- 6.) Find out whether a list is a palindrome. A palindrome can be read forward or backward; e.g. (x a m a x).
+isPalindrome :: (Eq x) => [x] -> Bool
+isPalindrome [] = True
+isPalindrome [_] = True
+isPalindrome xs = (head xs) == (last xs) && (isPalindrome $ init $ tail xs)
+
+isPalindrome' :: (Eq x) => [x] -> Bool
+isPalindrome' xs = xs == (reverse xs)
+
+isPalindrome'' :: (Eq x) => [x] -> Bool
+isPalindrome'' xs = all (\ (a, b) -> a == b) $ zip xs (reverse xs)
+
+isPalindrome''' :: (Eq x) => [x] -> Bool
+isPalindrome''' xs = and $ zipWith (==) xs (reverse xs)
+
+
+
 		  
 main = do
   
