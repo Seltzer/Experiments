@@ -2,6 +2,9 @@
 -- Just mucking around here learning a bit of Haskell and mostly ignoring error handling
 
 import Data.List
+import Control.Applicative
+import Control.Monad
+import Data.Maybe
 
 -- 1.) Find the last element in a list
 last'' :: (Show x) => [x] -> x
@@ -75,6 +78,61 @@ isPalindrome'' xs = all (\ (a, b) -> a == b) $ zip xs (reverse xs)
 isPalindrome''' :: (Eq x) => [x] -> Bool
 isPalindrome''' xs = and $ zipWith (==) xs (reverse xs)
 
+-- Applicative version where applicative functor type f = (->) [Int]
+isPalindrome'''' :: (Eq a) => [a] -> Bool
+isPalindrome'''' = (==) <*> reverse 
+
+-- Monad version where monad type m = (->) [Int]
+-- liftM2 :: (a -> b -> c) -> m a -> m b -> m c
+-- liftM2 specialised:: (Int -> Int -> Bool) -> ([Int] -> [Int]) -> ([Int] -> [Int]) -> ([Int] -> Bool)
+isPalindrome''''' :: (Eq a) => [a] -> Bool
+isPalindrome''''' = Control.Monad.liftM2 (==) id reverse
+
+
+-- 7.) Flatten a nested list structure (e.g. concat)
+-- flatten [[1, 2, 3, 4], [5, 6]]
+flatten' :: [[a]] -> [a]
+flatten' [[]] = []
+flatten' [x] = x
+flatten' (x:xs) = x ++ flatten'' xs
+
+flatten'' = foldl (\r n -> r ++ n) [] 
+
+-- 8.) Eliminate consecutive duplicates of list elements
+-- compress "aaaabccaadeeee" returns "abcade"
+compress' :: (Eq a) => [a] -> [a]
+compress' [] = []
+compress' [x] = [x]
+compress' (x:xs)  
+	| x == second = rest
+	| otherwise = x : rest
+	where 
+		second = head xs
+		rest = compress' xs
+		
+compress'' [] = []
+compress'' (x:xs) = x : (compress'' $ dropWhile (== x) xs)
+
+-- These two are variants of each other... zip x with its tail to produce a binary mask which indicates whether we should discard values
+compress''' x = map fst $ filter snd $ zip x $ ((:) True) $ zipWith (/=) x (tail x)
+compress'''' xs = (++ [last xs]) $ catMaybes $ zipWith (\a b -> if (a == b) then Nothing else Just a) xs (tail xs)
+
+compress''''' x = map head $ group x
+compress'''''' x = foldr (\a b -> if a == (head b) then b else a:b) [last x] x
+
+
+-- 8.) Pack consecutive duplicates of list elements into sublists. If a list contains repeated elements they should be placed in separate sublists.
+-- pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
+-- 		["aaaa","b","cc","aa","d","eeee"]
+pack' :: (Eq a) => [a] -> [[a]]
+pack' [] = []
+pack' (x:xs) = (x : a) : pack' b
+	where (a, b) = span (==x) xs
+
+pack'' :: (Eq a) => [a] -> [[a]]
+pack'' [] = []
+pack'' [x] = [[x]]
+pack'' (x:xs) = if x `elem` (head (pack'' xs)) then (x:(head (pack'' xs))):(tail (pack'' xs)) else [x]:(pack'' xs)
 
 
 		  
